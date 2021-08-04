@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using System.Reflection;
 
 namespace DutchTreat
 {
@@ -12,12 +14,18 @@ namespace DutchTreat
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DutchContext>();
-            services.AddTransient<IMailService, NullMailService>();
-            services.AddTransient<DutchSeeder>();
+            services.AddDbContext<DutchContext>()
+                    .AddTransient<IMailService, NullMailService>()
+                    .AddTransient<DutchSeeder>();
+
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            
             services.AddScoped < IDutchRepository, DutchRepository > ();
+
             services.AddControllersWithViews()
-                .AddRazorRuntimeCompilation();
+                .AddRazorRuntimeCompilation()
+                .AddNewtonsoftJson(cfg => cfg.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            
             services.AddRazorPages();
         }
 
